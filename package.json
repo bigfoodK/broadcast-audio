@@ -1,0 +1,29 @@
+{
+  "name": "broadcast-audio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node .",
+    "start-watch": "nodemon .",
+    "build": "tsc && parcel build src/client/index.html --out-dir dist/public",
+    "build-server": "tsc",
+    "build-server-watch": "tsc --watch",
+    "build-client": "parcel build src/client/index.html --out-dir dist/public",
+    "build-client-watch": "parcel watch src/client/index.html --out-dir dist/public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "bigfoodk",
+  "license": "ISC",
+  "dependencies": {
+    "@types/koa": "^2.11.3",
+    "@types/koa-static": "^4.0.1",
+    "@types/ws": "^7.2.5",
+    "audify": "^1.5.2",
+    "koa": "^2.12.1",
+    "koa-static": "^5.0.0",
+    "nodemon": "^2.0.4",
+    "typescript": "^3.9.5",
+    "ws": "^7.3.0"
+  }
+}
