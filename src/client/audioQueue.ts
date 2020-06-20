@@ -12,6 +12,9 @@ export class AudioQueue extends EventEmitter {
 
   public push(audioBuffer: AudioBuffer) {
     this.queue.push(audioBuffer);
+    if (this.queue.length > 5) {
+      this.queue.splice(5);
+    }
     if (!this.ready && this.queue.length > 2) {
       this.ready = true;
       this.emit('ready');
