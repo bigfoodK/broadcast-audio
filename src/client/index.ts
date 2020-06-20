@@ -45,3 +45,9 @@ websocket.addEventListener('open', () => {
     audioQueue.push(audioBuffer);
   });
 });
+
+const buttonElement = document.createElement('div');
+buttonElement.style.cursor = 'pointer';
+buttonElement.onclick = () => audioContext.resume();
+buttonElement.innerText = 'start';
+document.body.appendChild(buttonElement);
