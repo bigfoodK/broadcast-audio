@@ -13,7 +13,7 @@ export default class AudioBroadcaster {
       },
       RtAudioFormat.RTAUDIO_FLOAT32,
       48000,
-      1920,
+      512,
       "MyStream",
       pcm => this.sendAudio(pcm),
       null,

@@ -1,27 +1,69 @@
-import { EventEmitter } from "events";
+export class AudioQueue {
+  private chunks: Array<AudioBufferSourceNode> = [];
+  private isPlaying: boolean = false;
+  private startTime: number = 0;
+  private lastChunkOffset: number = 0;
 
-export declare interface AudioQueue {
-  on(eventName: 'ready', listener: Function): this;
-  emit(eventName: 'ready'): boolean;
-}
+  constructor(
+    public readonly audioContext: AudioContext,
+    public bufferSize: number = 4,
+    private debug = true,
+  ) { }
 
-export class AudioQueue extends EventEmitter {
-  private ready: boolean = false;
+  private createChunk(arrayBuffer: Float32Array) {
+    const audioBuffer = this.audioContext.createBuffer(2, 512, 48000);
+    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+      const nowBuffering = audioBuffer.getChannelData(channel);
 
-  private queue: AudioBuffer[] = [];
-
-  public push(audioBuffer: AudioBuffer) {
-    this.queue.push(audioBuffer);
-    if (this.queue.length > 5) {
-      this.queue.splice(5);
+      for (let i = 0; i < nowBuffering.length; i++) {
+        nowBuffering[i] = arrayBuffer[i * audioBuffer.numberOfChannels + channel];
+      }
     }
-    if (!this.ready && this.queue.length > 2) {
-      this.ready = true;
-      this.emit('ready');
-    }
-  };
 
-  public shift() {
-    return this.queue.shift();
+    const source = this.audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.onended = () => {
+      this.chunks.splice(this.chunks.indexOf(source), 1);
+      if (this.chunks.length == 0) {
+        this.isPlaying = false;
+        this.startTime = 0;
+        this.lastChunkOffset = 0;
+      }
+    };
+    source.connect(this.audioContext.destination);
+    return source;
+  }
+
+  private log(data:string) {
+      if (this.debug) {
+          console.log(new Date().toUTCString() + " : " + data);
+      }
+  }
+
+  public addChunk(data: Float32Array) {
+      if (this.isPlaying && (this.chunks.length > this.bufferSize)) {
+          this.log("chunk discarded");
+          return;
+      } else if (this.isPlaying && (this.chunks.length <= this.bufferSize)) {
+          this.log("chunk accepted");
+          const chunk = this.createChunk(data);
+          chunk.start(this.startTime + this.lastChunkOffset);
+          this.lastChunkOffset += chunk.buffer?.duration || 0;
+          this.chunks.push(chunk);
+      } else if ((this.chunks.length < (this.bufferSize / 2)) && !this.isPlaying) {
+          this.log("chunk queued");
+          const chunk = this.createChunk(data);
+          this.chunks.push(chunk);
+      } else {
+          this.log("queued chunks scheduled");
+          this.isPlaying = true;
+          this.chunks.push(this.createChunk(data));
+          this.startTime = this.audioContext.currentTime;
+          this.lastChunkOffset = 0;
+          this.chunks.forEach(chunk => {
+            chunk.start(this.startTime + this.lastChunkOffset);
+            this.lastChunkOffset += chunk.buffer?.duration || 0;
+          });
+      }
   }
 }
