@@ -10,8 +10,8 @@ function createAudioBuffer(arrayBuffer: Float32Array) {
   for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
     const nowBuffering = audioBuffer.getChannelData(channel);
     
-    for (let i = 0; i < audioBuffer.length; i++) {
-      nowBuffering[i] = arrayBuffer ? arrayBuffer[i] || 0 : 0;
+    for (let i = 0; i < nowBuffering.length; i++) {
+      nowBuffering[i] = arrayBuffer[i * audioBuffer.numberOfChannels + channel];
     }
   }
   return audioBuffer;

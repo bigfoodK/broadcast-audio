@@ -17,7 +17,7 @@ export default class AudioBroadcaster {
       "MyStream",
       pcm => this.sendAudio(pcm),
       null,
-      RtAudioStreamFlags.RTAUDIO_NONINTERLEAVED,
+      RtAudioStreamFlags.RTAUDIO_MINIMIZE_LATENCY,
     );
     rtAudio.start();
     this.rtAudio = rtAudio;
