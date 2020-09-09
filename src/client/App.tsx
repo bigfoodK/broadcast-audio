@@ -3,6 +3,7 @@ import { Grid, Dialog, Button } from '@material-ui/core';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import Configuration from './components/Configuration';
 import audioPlayer from './audioPlayer';
+import Visualizer from './components/Visualizer';
 
 type AppProps = {
 } & WithSnackbarProps;
@@ -62,6 +63,7 @@ class App extends Component<AppProps, AppStates> {
     return (
       <Grid container spacing={2}>
         <Configuration />
+        <Visualizer />
         <Dialog open={startDialogOpen}>
           <Button
             variant="contained"

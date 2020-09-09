@@ -34,36 +34,37 @@ export class AudioQueue {
     return source;
   }
 
-  private log(data:string) {
-      if (this.debug) {
-          console.log(new Date().toUTCString() + " : " + data);
-      }
+  private log(data: string) {
+    if (this.debug) {
+      console.log(new Date().toUTCString() + " : " + data);
+    }
   }
 
   public addChunk(data: Float32Array) {
-      if (this.isPlaying && (this.chunks.length > this.bufferSize)) {
-          this.log("chunk discarded");
-          return;
-      } else if (this.isPlaying && (this.chunks.length <= this.bufferSize)) {
-          this.log("chunk accepted");
-          const chunk = this.createChunk(data);
-          chunk.start(this.startTime + this.lastChunkOffset);
-          this.lastChunkOffset += chunk.buffer?.duration || 0;
-          this.chunks.push(chunk);
-      } else if ((this.chunks.length < (this.bufferSize / 2)) && !this.isPlaying) {
-          this.log("chunk queued");
-          const chunk = this.createChunk(data);
-          this.chunks.push(chunk);
-      } else {
-          this.log("queued chunks scheduled");
-          this.isPlaying = true;
-          this.chunks.push(this.createChunk(data));
-          this.startTime = this.audioContext.currentTime;
-          this.lastChunkOffset = 0;
-          this.chunks.forEach(chunk => {
-            chunk.start(this.startTime + this.lastChunkOffset);
-            this.lastChunkOffset += chunk.buffer?.duration || 0;
-          });
-      }
+    if (this.isPlaying && (this.chunks.length > this.bufferSize)) {
+      this.log("chunk discarded");
+    } else if (this.isPlaying && (this.chunks.length <= this.bufferSize)) {
+      this.log("chunk accepted");
+      const chunk = this.createChunk(data);
+      chunk.start(this.startTime + this.lastChunkOffset);
+      this.lastChunkOffset += chunk.buffer?.duration || 0;
+      this.chunks.push(chunk);
+    } else if ((this.chunks.length < (this.bufferSize / 2)) && !this.isPlaying) {
+      this.log("chunk queued");
+      const chunk = this.createChunk(data);
+      this.chunks.push(chunk);
+    } else {
+      this.log("queued chunks scheduled");
+      this.isPlaying = true;
+      this.chunks.push(this.createChunk(data));
+      this.startTime = this.audioContext.currentTime;
+      this.lastChunkOffset = 0;
+      this.chunks.forEach(chunk => {
+        chunk.start(this.startTime + this.lastChunkOffset);
+        this.lastChunkOffset += chunk.buffer?.duration || 0;
+      });
+    }
+
+    return this.chunks.length;
   }
 }
